@@ -21,6 +21,8 @@ async function run() {
     const database = client.db("greenHotels");
     const hotelsCollections = database.collection("hotels");
     const reviewsCollection = database.collection("reviews");
+    const hotelBookedCollection = database.collection("hotelBooked");
+    const citiesCollection = database.collection("cities");
 
     // get all the class
     app.get("/hotels", async (req, res) => {
@@ -52,6 +54,27 @@ async function run() {
     });
     app.get("/reviews", async (req, res) => {
       const result = await reviewsCollection.find({}).toArray();
+      res.send(result);
+    });
+
+    // post booked hotel
+    app.post("/booked", async (req, res) => {
+      const hotel = req.body;
+      const result = await hotelBookedCollection.insertOne(hotel);
+      res.json(result);
+    });
+
+    // get booked hotel
+    app.get("/booked", async (req, res) => {
+      const email = req.query.email;
+      const query = { userEmail: email };
+      const result = await hotelBookedCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // cities
+    app.get("/cities", async (req, res) => {
+      const result = await citiesCollection.find({}).toArray();
       res.send(result);
     });
   } finally {
