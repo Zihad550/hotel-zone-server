@@ -112,8 +112,8 @@ async function run() {
     });
 
     // check if the user is admin
-    app.get("/users", async (req, res) => {
-      const email = req.query.email;
+    app.get("/users/email", async (req, res) => {
+      const email = req.params.email;
       const query = { email };
       const result = await usersCollection.findOne(query);
       let isAdmin = false;
