@@ -149,7 +149,7 @@ async function run() {
       res.json(result);
     });
 
-    // add photos to the photo gellery
+    // add photos to the photo gallery
     app.post("/photos", async (req, res) => {
       const photo = req.body;
       const result = await photosCollection.insertOne(photo);
