@@ -23,6 +23,7 @@ async function run() {
     const reviewsCollection = database.collection("reviews");
     const hotelBookedCollection = database.collection("hotelBooked");
     const citiesCollection = database.collection("cities");
+    const usersCollection = database.collection("users");
 
     // set reviews
     app.post("/reviews", async (req, res) => {
@@ -79,6 +80,35 @@ async function run() {
     app.get("/cities", async (req, res) => {
       const result = await citiesCollection.find({}).toArray();
       res.send(result);
+    });
+
+    // user methods
+
+    // get users
+    app.get("/users", async (req, res) => {
+      const result = await usersCollection.find({}).toArray();
+      res.send(result);
+    });
+
+    // post user
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const result = await usersCollection.insertOne(user);
+      res.json(result);
+    });
+
+    // update user
+    app.put("/users", async (req, res) => {
+      const user = req.body;
+      const filter = { email: user.email };
+      const options = { upsert: true };
+      const updateDoc = { $set: user };
+      const result = await usersCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.json(result);
     });
   } finally {
   }
