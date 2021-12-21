@@ -111,7 +111,7 @@ async function run() {
       res.json(result);
     });
 
-    // check is the user is admin
+    // check if the user is admin
     app.get("/users", async (req, res) => {
       const email = req.query.email;
       const query = { email };
