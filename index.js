@@ -149,6 +149,13 @@ async function run() {
       res.json(result);
     });
 
+    // photos routes
+    // get all photos
+    app.get("/photos", async (req, res) => {
+      const result = await photosCollection.find({}).toArray();
+      res.send(result);
+    });
+
     // add photos to the photo gallery
     app.post("/photos", async (req, res) => {
       const photo = req.body;
