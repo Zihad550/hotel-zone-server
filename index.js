@@ -62,7 +62,7 @@ async function run() {
     //delete bookings
     app.delete("/booked", async (req, res) => {
       const id = req.query.id;
-      const query = { _id: Object(id) };
+      const query = { _id: ObjectId(id) };
       const result = await hotelBookedCollection.deleteOne(query);
       res.json(result);
     });
