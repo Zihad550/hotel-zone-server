@@ -76,10 +76,17 @@ async function run() {
       res.send(result);
     });
 
-    // cities
+    // get all cities
     app.get("/cities", async (req, res) => {
       const result = await citiesCollection.find({}).toArray();
       res.send(result);
+    });
+
+    // add new city
+    app.post("/cities", async (req, res) => {
+      const city = req.body;
+      const result = await citiesCollection.insertOne(city);
+      res.json(result);
     });
 
     // user methods
