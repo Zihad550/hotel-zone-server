@@ -24,6 +24,7 @@ async function run() {
     const hotelBookedCollection = database.collection("hotelBooked");
     const citiesCollection = database.collection("cities");
     const usersCollection = database.collection("users");
+    const photosCollection = database.collection("photos");
 
     // set reviews
     app.post("/reviews", async (req, res) => {
@@ -145,6 +146,13 @@ async function run() {
       const filter = { email: user.email };
       const updateDoc = { $set: { role: "admin" } };
       const result = await usersCollection.updateOne(filter, updateDoc);
+      res.json(result);
+    });
+
+    // add photos to the photo gellery
+    app.post("/photos", async (req, res) => {
+      const photo = req.body;
+      const result = await photosCollection.insertOne(photo);
       res.json(result);
     });
   } finally {
