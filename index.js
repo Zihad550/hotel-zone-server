@@ -76,6 +76,7 @@ async function run() {
       res.send(result);
     });
 
+    // cities routes
     // get all cities
     app.get("/cities", async (req, res) => {
       const result = await citiesCollection.find({}).toArray();
@@ -86,6 +87,14 @@ async function run() {
     app.post("/cities", async (req, res) => {
       const city = req.body;
       const result = await citiesCollection.insertOne(city);
+      res.json(result);
+    });
+
+    // delete city
+    app.delete("/cities", async (req, res) => {
+      const id = req.query.id;
+      const query = { _id: ObjectId(id) };
+      const result = await citiesCollection.deleteOne(query);
       res.json(result);
     });
 
