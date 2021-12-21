@@ -47,14 +47,24 @@ async function run() {
       res.json(hotel);
     });
 
+    // set reviews
     app.post("/reviews", async (req, res) => {
       const review = req.body;
       const result = await reviewsCollection.insertOne(review);
       res.json(result);
     });
+
+    // get reviews
     app.get("/reviews", async (req, res) => {
       const result = await reviewsCollection.find({}).toArray();
       res.send(result);
+    });
+    // get my reviews
+    app.get("/reviews/review", async (req, res) => {
+      const email = req.query.email;
+      const query = { userEmail: email };
+      const result = await reviewsCollection.find(query).toArray();
+      res.json(result);
     });
 
     // post booked hotel
@@ -64,7 +74,7 @@ async function run() {
       res.json(result);
     });
 
-    // get booked hotel
+    // get booked hotel using email
     app.get("/booked", async (req, res) => {
       const email = req.query.email;
       const query = { userEmail: email };
