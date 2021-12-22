@@ -162,6 +162,14 @@ async function run() {
       const result = await photosCollection.insertOne(photo);
       res.json(result);
     });
+
+    // delete selected photo
+    app.delete("/photos", async (req, res) => {
+      const result = await photosCollection.deleteOne({
+        _id: ObjectId(req.query.id),
+      });
+      res.json(result);
+    });
   } finally {
   }
 }
