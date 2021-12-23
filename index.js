@@ -29,7 +29,7 @@ async function run() {
     // hotels routes
     app.get("/hotels", async (req, res) => {
       const result = await hotelsCollections.find({}).toArray();
-      res.json();
+      res.json(result);
     });
 
     // set reviews
