@@ -26,6 +26,12 @@ async function run() {
     const usersCollection = database.collection("users");
     const photosCollection = database.collection("photos");
 
+    // hotels routes
+    app.get("/hotels", async (req, res) => {
+      const result = await hotelsCollections.find({}).toArray();
+      res.json();
+    });
+
     // set reviews
     app.post("/reviews", async (req, res) => {
       const review = req.body;
