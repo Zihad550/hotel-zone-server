@@ -27,13 +27,6 @@ async function run() {
     const photosCollection = database.collection("photos");
     const roomsCollection = database.collection("rooms");
 
-    // rooms routes
-    // get all rooms
-    app.get("/rooms", async (req, res) => {
-      const result = await roomsCollection.find({}).toArray();
-      res.send(result);
-    });
-
     // hotels routes
     app.get("/hotels", async (req, res) => {
       const result = await hotelsCollections.find({}).toArray();
@@ -183,6 +176,13 @@ async function run() {
         _id: ObjectId(req.query.id),
       });
       res.json(result);
+    });
+
+    // rooms routes
+    // get all rooms
+    app.get("/rooms", async (req, res) => {
+      const result = await roomsCollection.find({}).toArray();
+      res.send(result);
     });
   } finally {
   }
