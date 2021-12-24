@@ -180,10 +180,10 @@ async function run() {
 
     // rooms routes
     // get all rooms
-    /* app.get("/rooms", async (req, res) => {
+    app.get("/rooms", async (req, res) => {
       const result = await roomsCollection.find({}).toArray();
       res.json(result);
-    }); */
+    });
   } finally {
   }
 }
