@@ -43,7 +43,7 @@ async function run() {
     // get reviews
     app.get("/reviews", async (req, res) => {
       const result = await reviewsCollection.find({}).toArray();
-      res.send(result);
+      res.json(result);
     });
     // get my reviews
     app.get("/reviews/review", async (req, res) => {
@@ -81,14 +81,14 @@ async function run() {
       const email = req.query.email;
       const query = { userEmail: email };
       const result = await hotelBookedCollection.find(query).toArray();
-      res.send(result);
+      res.json(result);
     });
 
     // cities routes
     // get all cities
     app.get("/cities", async (req, res) => {
       const result = await citiesCollection.find({}).toArray();
-      res.send(result);
+      res.json(result);
     });
 
     // add new city
@@ -111,7 +111,7 @@ async function run() {
     // get users
     app.get("/users", async (req, res) => {
       const result = await usersCollection.find({}).toArray();
-      res.send(result);
+      res.json(result);
     });
 
     // post user
@@ -160,7 +160,7 @@ async function run() {
     // get all photos
     app.get("/photos", async (req, res) => {
       const result = await photosCollection.find({}).toArray();
-      res.send(result);
+      res.json(result);
     });
 
     // add photos to the photo gallery
@@ -182,7 +182,7 @@ async function run() {
     // get all rooms
     app.get("/rooms", async (req, res) => {
       const result = await roomsCollection.find({}).toArray();
-      res.send(result);
+      res.json(result);
     });
   } finally {
   }
