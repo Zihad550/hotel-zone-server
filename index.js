@@ -25,6 +25,14 @@ async function run() {
     const citiesCollection = database.collection("cities");
     const usersCollection = database.collection("users");
     const photosCollection = database.collection("photos");
+    const roomsCollection = database.collection("rooms");
+
+    // rooms routes
+    // get all rooms
+    app.get("/rooms", async (req, res) => {
+      const result = await roomsCollection.find({}).toArray();
+      res.send(result);
+    });
 
     // hotels routes
     app.get("/hotels", async (req, res) => {
