@@ -4,6 +4,7 @@ const { MongoClient } = require("mongodb");
 require("dotenv").config();
 const app = express();
 const ObjectId = require("mongodb").ObjectId;
+const bcrypt = require("bcrypt");
 
 const port = process.env.PORT || 8000;
 
@@ -107,6 +108,39 @@ async function run() {
     });
 
     // user methods
+
+    // register user
+    app.post("/register", async (req, res) => {
+      const { name, email, password } = req.body;
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newUser = {
+        name,
+        email,
+        password: hashedPassword,
+      };
+
+      const result = await usersCollection.insertOne(newUser);
+      res.json(result);
+    });
+
+    // login user
+    app.post("/login", async (req, res) => {
+      const { email, password } = req.body;
+      const user = await usersCollection.findOne({ email });
+      if (user) {
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        if (isValidPassword) {
+          res.json({ success: "Authentication successful" });
+        } else {
+          res.json({ error: "Authentication failed" });
+        }
+      } else {
+        res.json({ error: "Authentication failed" });
+      }
+    });
+
+    // get authenticated user
+    app.get("/users/user", async (req, res) => {});
 
     // get users
     app.get("/users", async (req, res) => {
