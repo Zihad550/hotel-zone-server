@@ -120,7 +120,7 @@ async function run() {
       };
 
       const result = await usersCollection.insertOne(newUser);
-      res.json(result);
+      res.json({ ...result, ...newUser });
     });
 
     // login user
@@ -130,7 +130,7 @@ async function run() {
       if (user) {
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (isValidPassword) {
-          res.json({ success: "Authentication successful" });
+          res.json({ success: "Authentication successful", ...user });
         } else {
           res.json({ error: "Authentication failed" });
         }
@@ -140,7 +140,19 @@ async function run() {
     });
 
     // get authenticated user
-    app.get("/users/user", async (req, res) => {});
+    app.get("/users/user", async (req, res) => {
+      const { email, password } = req.body;
+      console.log(email, password);
+      const user = await usersCollection.findOne({ email });
+      if (user) {
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        if (isValidPassword) {
+          res.json(user);
+        } else {
+          res.json({ error: "new user" });
+        }
+      }
+    });
 
     // get users
     app.get("/users", async (req, res) => {
