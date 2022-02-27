@@ -107,11 +107,18 @@ async function run() {
       res.json(result);
     });
 
-    // user methods
+    // user routes && admin routes
 
     // register user
     app.post("/register", async (req, res) => {
       const { name, email, password } = req.body;
+      
+      // check if the users exists on the database
+      const user = await usersCollection.findOne({email});
+      if(user){
+        res.json({error:'User Exists'})
+      }else{
+
       const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = {
         name,
@@ -121,6 +128,7 @@ async function run() {
 
       const result = await usersCollection.insertOne(newUser);
       res.json({ ...result, ...newUser });
+      }
     });
 
     // login user
@@ -139,66 +147,26 @@ async function run() {
       }
     });
 
-    // get authenticated user
-    app.get("/users/user", async (req, res) => {
-      const { email, password } = req.body;
-      console.log(email, password);
-      const user = await usersCollection.findOne({ email });
-      if (user) {
-        const isValidPassword = await bcrypt.compare(password, user.password);
-        if (isValidPassword) {
-          res.json(user);
-        } else {
-          res.json({ error: "new user" });
+    // check if the user is admin
+    app.get('/admin', async(req, res) => {
+      const email = req.query.email;
+      console.log(email)
+      const user = await usersCollection.findOne({email});
+      console.log(user)
+      if(user){
+        console.log(user.role)
+        if(user.role === 'admin'){
+          res.json({admin: true});
+        }else{
+          res.json({admin: false})
         }
       }
-    });
-
-    // get users
-    app.get("/users", async (req, res) => {
-      const result = await usersCollection.find({}).toArray();
-      res.json(result);
-    });
-
-    // post user
-    app.post("/users", async (req, res) => {
-      const user = req.body;
-      const result = await usersCollection.insertOne(user);
-      res.json(result);
-    });
-
-    // update user
-    app.put("/users", async (req, res) => {
-      const user = req.body;
-      const filter = { email: user.email };
-      const options = { upsert: true };
-      const updateDoc = { $set: user };
-      const result = await usersCollection.updateOne(
-        filter,
-        updateDoc,
-        options
-      );
-      res.json(result);
-    });
-
-    // check if the user is admin
-    app.get("/users/:email", async (req, res) => {
-      const email = req.params.email;
-      const query = { email };
-      const user = await usersCollection.findOne(query);
-      let isAdmin = false;
-      if (user?.role === "admin") {
-        isAdmin = true;
-      }
-      res.json({ admin: isAdmin });
-    });
-
-    // update user to admin
-    app.put("/users/admin", async (req, res) => {
-      const user = req.body;
-      const filter = { email: user.email };
-      const updateDoc = { $set: { role: "admin" } };
-      const result = await usersCollection.updateOne(filter, updateDoc);
+    })
+    
+    // make user admin
+    app.put('/admin', async(req, res) => {
+      const email = req.query.email;
+      const result = await usersCollection.updateOne({email}, {$set: {role: 'admin'}});
       res.json(result);
     });
 
