@@ -72,6 +72,7 @@ async function run() {
     //delete bookings
     app.delete("/booked", async (req, res) => {
       const id = req.query.id;
+      const role = req.query.role;
       const query = { _id: ObjectId(id) };
       const result = await hotelBookedCollection.deleteOne(query);
       res.json(result);
@@ -102,8 +103,9 @@ async function run() {
     // delete city
     app.delete("/cities", async (req, res) => {
       const id = req.query.id;
-      const query = { _id: ObjectId(id) };
-      const result = await citiesCollection.deleteOne(query);
+      const result = await citiesCollection.deleteOne({$and: [{
+        _id: ObjectId(req.query.id)
+      }, {deletable: true}]});
       res.json(result);
     });
 
@@ -186,9 +188,9 @@ async function run() {
 
     // delete selected photo
     app.delete("/photos", async (req, res) => {
-      const result = await photosCollection.deleteOne({
-        _id: ObjectId(req.query.id),
-      });
+      const result = await photosCollection.deleteOne({$and: [{
+        _id: ObjectId(req.query.id)
+      }, {deletable: true}]});
       res.json(result);
     });
 
