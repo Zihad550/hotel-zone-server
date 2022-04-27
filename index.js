@@ -27,6 +27,7 @@ async function run() {
     const usersCollection = database.collection("users");
     const photosCollection = database.collection("photos");
     const roomsCollection = database.collection("rooms");
+    const blogsCollection = database.collection('blogs');
 
     // hotels routes
     app.get("/hotels", async (req, res) => {
@@ -101,7 +102,7 @@ async function run() {
     });
 
     // delete city
-    app.delete("/cities", async (req, res) => {
+    app.delete("/city", async (req, res) => {
       const id = req.query.id;
       const result = await citiesCollection.deleteOne({$and: [{
         _id: ObjectId(req.query.id)
@@ -110,24 +111,20 @@ async function run() {
     });
 
     // user routes && admin routes
-
     // register user
     app.post("/register", async (req, res) => {
       const { name, email, password } = req.body;
-      
       // check if the users exists on the database
       const user = await usersCollection.findOne({email});
       if(user){
         res.json({error:'User Exists'})
       }else{
-
       const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = {
         name,
         email,
         password: hashedPassword,
       };
-
       const result = await usersCollection.insertOne(newUser);
       res.json({ ...result, ...newUser });
       }
@@ -149,12 +146,16 @@ async function run() {
       }
     });
 
+    // get user
+    app.get('/user', async(req, res) => {
+      const result = await usersCollection.findOne({email: req.query.email});
+      res.json(result);
+    })
+
     // check if the user is admin
     app.get('/admin', async(req, res) => {
       const email = req.query.email;
-      console.log(email)
       const user = await usersCollection.findOne({email});
-      console.log(user)
       if(user){
         console.log(user.role)
         if(user.role === 'admin'){
@@ -187,7 +188,7 @@ async function run() {
     });
 
     // delete selected photo
-    app.delete("/photos", async (req, res) => {
+    app.delete("/photo", async (req, res) => {
       const result = await photosCollection.deleteOne({$and: [{
         _id: ObjectId(req.query.id)
       }, {deletable: true}]});
@@ -200,6 +201,40 @@ async function run() {
       const result = await roomsCollection.find({}).toArray();
       res.json(result);
     });
+
+    // blog routes
+    // create blog 
+    app.post('/blog', async(req, res) => {
+      const result = await blogsCollection.insertOne(req.body);
+      res.json(result)
+    })
+
+    // get blogs
+    app.get('/blogs', async(req, res) => {
+      let {blogsPerPage, currentPage} = req.query;
+      currentPage = JSON.stringify(currentPage - 1)
+      console.log(currentPage)
+      const cursor = blogsCollection.find({});
+      const total = await cursor.count();
+      let result;
+      
+      if(currentPage){
+       result = await cursor.skip(currentPage * blogsPerPage).limit(parseInt(blogsPerPage)).toArray();
+      }
+      else {
+        result = await cursor.toArray();
+      }
+
+      res.json({blogs: result, total})
+    })
+
+    // delete blog
+    app.delete('/blog', async(req, res) => {
+      const result = await blogsCollection.deleteOne({$and: [{_id: ObjectId(req.query.id)}, {deletable: true}]});
+      console.log(result)
+      res.json(result)
+    })
+
   } finally {
   }
 }
