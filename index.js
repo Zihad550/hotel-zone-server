@@ -27,7 +27,7 @@ async function run() {
     const usersCollection = database.collection("users");
     const photosCollection = database.collection("photos");
     const roomsCollection = database.collection("rooms");
-    const blogsCollection = database.collection('blogs');
+    const blogsCollection = database.collection("blogs");
 
     // hotels routes
     app.get("/hotels", async (req, res) => {
@@ -104,9 +104,14 @@ async function run() {
     // delete city
     app.delete("/city", async (req, res) => {
       const id = req.query.id;
-      const result = await citiesCollection.deleteOne({$and: [{
-        _id: ObjectId(req.query.id)
-      }, {deletable: true}]});
+      const result = await citiesCollection.deleteOne({
+        $and: [
+          {
+            _id: ObjectId(req.query.id),
+          },
+          { deletable: true },
+        ],
+      });
       res.json(result);
     });
 
@@ -115,18 +120,18 @@ async function run() {
     app.post("/register", async (req, res) => {
       const { name, email, password } = req.body;
       // check if the users exists on the database
-      const user = await usersCollection.findOne({email});
-      if(user){
-        res.json({error:'User Exists'})
-      }else{
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = {
-        name,
-        email,
-        password: hashedPassword,
-      };
-      const result = await usersCollection.insertOne(newUser);
-      res.json({ ...result, ...newUser });
+      const user = await usersCollection.findOne({ email });
+      if (user) {
+        res.json({ error: "User Exists" });
+      } else {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = {
+          name,
+          email,
+          password: hashedPassword,
+        };
+        const result = await usersCollection.insertOne(newUser);
+        res.json({ ...result, ...newUser });
       }
     });
 
@@ -147,29 +152,35 @@ async function run() {
     });
 
     // get user
-    app.get('/user', async(req, res) => {
-      const result = await usersCollection.findOne({email: req.query.email});
+    app.get("/user", async (req, res) => {
+      const email = req.query.email;
+      if (!email) res.json({ data: "email not provided" }).statusCode(400);
+      const result = await usersCollection.findOne({ email });
       res.json(result);
-    })
+    });
 
     // check if the user is admin
-    app.get('/admin', async(req, res) => {
+    app.get("/admin", async (req, res) => {
       const email = req.query.email;
-      const user = await usersCollection.findOne({email});
-      if(user){
-        console.log(user.role)
-        if(user.role === 'admin'){
-          res.json({admin: true});
-        }else{
-          res.json({admin: false})
-        }
+      if (!email) res.json({ data: "email not provided" }).statusCode(400);
+      const user = await usersCollection.findOne({ email });
+
+      if (!user) res.json({ data: "user not provided" }).statusCode(400);
+
+      if (user.role === "admin") {
+        res.json({ admin: true });
+      } else {
+        res.json({ admin: false });
       }
-    })
-    
+    });
+
     // make user admin
-    app.put('/admin', async(req, res) => {
+    app.put("/admin", async (req, res) => {
       const email = req.query.email;
-      const result = await usersCollection.updateOne({email}, {$set: {role: 'admin'}});
+      const result = await usersCollection.updateOne(
+        { email },
+        { $set: { role: "admin" } },
+      );
       res.json(result);
     });
 
@@ -189,9 +200,14 @@ async function run() {
 
     // delete selected photo
     app.delete("/photo", async (req, res) => {
-      const result = await photosCollection.deleteOne({$and: [{
-        _id: ObjectId(req.query.id)
-      }, {deletable: true}]});
+      const result = await photosCollection.deleteOne({
+        $and: [
+          {
+            _id: ObjectId(req.query.id),
+          },
+          { deletable: true },
+        ],
+      });
       res.json(result);
     });
 
@@ -203,44 +219,47 @@ async function run() {
     });
 
     // blog routes
-    // create blog 
-    app.post('/blog', async(req, res) => {
+    // create blog
+    app.post("/blog", async (req, res) => {
       const result = await blogsCollection.insertOne(req.body);
-      res.json(result)
-    })
+      res.json(result);
+    });
 
     // get blogs
-    app.get('/blogs', async(req, res) => {
-      let {blogsPerPage, currentPage} = req.query;
-      currentPage = JSON.stringify(currentPage - 1)
-      console.log(currentPage)
-      const cursor = blogsCollection.find({});
-      const total = await cursor.count();
+    app.get("/blogs", async (req, res) => {
+      let { blogsPerPage, currentPage } = req.query;
+      currentPage = JSON.stringify(currentPage - 1);
+      console.log(currentPage);
+      const total = await blogsCollection.countDocuments({});
       let result;
-      
-      if(currentPage){
-       result = await cursor.skip(currentPage * blogsPerPage).limit(parseInt(blogsPerPage)).toArray();
-      }
-      else {
-        result = await cursor.toArray();
+
+      if (currentPage) {
+        result = await blogsCollection
+          .find({})
+          .skip(currentPage * blogsPerPage)
+          .limit(parseInt(blogsPerPage))
+          .toArray();
+      } else {
+        result = await blogsCollection.find({}).toArray();
       }
 
-      res.json({blogs: result, total})
-    })
+      res.json({ blogs: result, total });
+    });
 
     // delete blog
-    app.delete('/blog', async(req, res) => {
-      const result = await blogsCollection.deleteOne({$and: [{_id: ObjectId(req.query.id)}, {deletable: true}]});
-      console.log(result)
-      res.json(result)
-    })
-
+    app.delete("/blog", async (req, res) => {
+      const result = await blogsCollection.deleteOne({
+        $and: [{ _id: ObjectId(req.query.id) }, { deletable: true }],
+      });
+      console.log(result);
+      res.json(result);
+    });
   } finally {
   }
 }
 run().catch(console.dir);
 
-app.get("/", (req, res) => {
+app.get("/healtz", (req, res) => {
   res.send("Welcome to green hotels server");
 });
 
